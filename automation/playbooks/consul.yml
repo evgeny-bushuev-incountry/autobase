@@ -8,6 +8,17 @@
   environment: "{{ proxy_env | default({}) }}"
 
   pre_tasks:
+
+    - name: Gather ansible_distribution from localhost
+      setup:
+        gather_subset:
+        - '!all'
+        - '!min'
+        - distribution
+      become: false
+      delegate_to: localhost
+      delegate_facts: true
+
     - name: Check if the consul role requirements (ansible.utils) are installed
       ansible.builtin.command: ansible-galaxy collection list ansible.utils
       changed_when: false
@@ -37,7 +48,7 @@
       retries: 3
       delegate_to: localhost
       run_once: true # noqa run-once
-      when: ansible_distribution != "MacOSX"
+      when: hostvars['localhost']['ansible_distribution'] != "MacOSX"
 
     - name: Make sure the python3-pip package are present on the control host
       ansible.builtin.package:
@@ -49,7 +60,7 @@
       retries: 3
       delegate_to: localhost
       run_once: true # noqa run-once
-      when: ansible_distribution != "MacOSX"
+      when: hostvars['localhost']['ansible_distribution'] != "MacOSX"
 
     - name: Install netaddr dependency on the control host
       ansible.builtin.pip:

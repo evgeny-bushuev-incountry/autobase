@@ -106,7 +106,7 @@
 
     - name: Check that the patroni is healthy (the leader with the lock)
       ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/leader"
+        url: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/leader"
         status_code: 200
       register: patroni_result
       until: patroni_result.status == 200
@@ -136,7 +136,7 @@
 
     - name: Check that the patroni is healthy on the Replica
       ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/health"
+        url: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/health"
         status_code: 200
       register: patroni_result
       until: patroni_result.status == 200

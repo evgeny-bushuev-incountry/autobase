@@ -861,7 +861,7 @@
     - name: "Wait for port {{ patroni_restapi_port }} to become open on the host"
       ansible.builtin.wait_for:
         port: "{{ patroni_restapi_port }}"
-        host: "{{ inventory_hostname }}"
+        host: "{{ patroni_connect_address }}"
         state: started
         timeout: 120
         delay: 10
@@ -884,7 +884,7 @@
 
     - name: Wait for the Standby cluster initialization to complete
       ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/standby-leader"
+        url: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/standby-leader"
         status_code: 200
       register: standby_leader_result
       until: standby_leader_result.status == 200
@@ -908,7 +908,7 @@
 
     - name: Wait for the cluster to initialize (master is the leader with the lock)
       ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/leader"
+        url: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/leader"
         status_code: 200
       register: result
       until: result.status == 200
@@ -1048,7 +1048,7 @@
     - name: "Wait for port {{ patroni_restapi_port }} to become open on the host"
       ansible.builtin.wait_for:
         port: "{{ patroni_restapi_port }}"
-        host: "{{ inventory_hostname }}"
+        host: "{{ patroni_connect_address }}"
         state: started
         timeout: 120
         delay: 10
@@ -1056,7 +1056,7 @@
 
     - name: Check that the patroni is healthy on the replica server
       ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/health"
+        url: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/health"
         status_code: 200
       register: replica_result
       until: replica_result.status == 200

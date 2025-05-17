@@ -113,6 +113,7 @@ etcd_version: 3.5.21
 etcd_data_dir: "/var/lib/etcd"
 etcd_cluster_name: "etcd-{{ patroni_cluster_name }}" # ETCD_INITIAL_CLUSTER_TOKEN
 etcd_on_dedicated_nodes: "{{ groups['etcd_cluster'] | difference(groups['postgres_cluster']) | length > 0 }}" # 'true' or 'false'
+etcd_access_address: "{{ private_ip_address | d(inventory_hostname) }}"
 # TLS
 # Enables TLS encryption with a self-signed certificate if 'tls_cert_generate' is true.
 etcd_tls_enable: "{{ tls_cert_generate | default(true) }}"
@@ -183,14 +184,14 @@ consul_services:
     tags: ["master", "primary"]
     port: "{{ pgbouncer_listen_port }}" # or "{{ postgresql_port }}" if pgbouncer_install: false
     checks:
-      - { http: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/primary", interval: "2s" }
+      - { http: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/primary", interval: "2s" }
       - { args: ["systemctl", "status", "pgbouncer"], interval: "5s" } # comment out this check if pgbouncer_install: false
   - name: "{{ patroni_cluster_name }}"
     id: "{{ patroni_cluster_name }}-replica"
     tags: ["replica"]
     port: "{{ pgbouncer_listen_port }}"
     checks:
-      - { http: "http://{{ inventory_hostname }}:{{ patroni_restapi_port }}/replica?lag={{ patroni_maximum_lag_on_replica }}", interval: "2s" }
+      - { http: "http://{{ patroni_connect_address }}:{{ patroni_restapi_port }}/replica?lag={{ patroni_maximum_lag_on_replica }}", interval: "2s" }
       - { args: ["systemctl", "status", "pgbouncer"], interval: "5s" }
 #  - name: "{{ patroni_cluster_name }}"
 #    id: "{{ patroni_cluster_name }}-sync-replica"
@@ -472,6 +473,7 @@ patroni_retry_timeout: 10
 patroni_master_start_timeout: 300
 patroni_maximum_lag_on_failover: 1048576 # (1MB) the maximum bytes a follower may lag to be able to participate in leader election.
 patroni_maximum_lag_on_replica: "100MB" # the maximum of lag that replica can be in order to be available for read-only queries.
+patroni_connect_address: "{{ private_ip_address }}"
 
 # https://patroni.readthedocs.io/en/latest/yaml_configuration.html#postgresql
 patroni_callbacks: []
@@ -621,10 +623,10 @@ wal_g_prefetch_dir_path: "{{ postgresql_home_dir }}/wal-g-prefetch"
 # Define job_parts outside of wal_g_cron_jobs
 # ⚠️ Ensure there is a space at the beginning of each part to prevent commands from concatenating.
 wal_g_backup_command:
-  - "curl -I -s http://{{ inventory_hostname }}:{{ patroni_restapi_port }} | grep 200"
+  - "curl -I -s http://{{ patroni_connect_address }}:{{ patroni_restapi_port }} | grep 200"
   - " && {{ wal_g_path }} backup-push {{ postgresql_data_dir }} > {{ postgresql_log_dir }}/walg_backup.log 2>&1"
 wal_g_delete_command:
-  - "curl -I -s http://{{ inventory_hostname }}:{{ patroni_restapi_port }} | grep 200"
+  - "curl -I -s http://{{ patroni_connect_address }}:{{ patroni_restapi_port }} | grep 200"
   - " && {{ wal_g_path }} delete retain FULL 4 --confirm > {{ postgresql_log_dir }}/walg_delete.log 2>&1"
 
 wal_g_cron_jobs:

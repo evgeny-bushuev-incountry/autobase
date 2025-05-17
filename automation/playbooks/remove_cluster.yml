@@ -17,6 +17,10 @@
           ansible.builtin.file:
             path: "{{ postgresql_data_dir | default('/var/lib/postgresql') }}"
             state: absent
+        - name: Delete PostgreSQL data directory (perform pg_dropcluster)
+          ansible.builtin.command: >
+            /usr/bin/pg_dropcluster {{ pg_old_version }} {{ postgresql_cluster_name }}
+          when: ansible_os_family == "Debian"
       when: remove_postgres | default(false) | bool
       ignore_errors: true
     - block:
