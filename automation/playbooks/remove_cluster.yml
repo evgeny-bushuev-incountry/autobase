@@ -50,10 +50,6 @@
           ansible.builtin.file:
             path: "{{ consul_data_path | default('/var/lib/consul') }}"
             state: absent
-        - name: Delete Consul serivce
-          ansible.builtin.file:
-            path: /lib/systemd/system/consul.service
-            state: absent
       when: remove_consul | default(false) | bool
       ignore_errors: true
 

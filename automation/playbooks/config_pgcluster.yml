@@ -18,7 +18,9 @@
       tags: always
   roles:
     - role: cloud_resources
-      when: cloud_provider | default('') | length > 0
+      when: 
+      - cloud_provider | default('') | length > 0
+      - cloud_init | bool
       vars:
         postgresql_cluster_maintenance: true
       tags: always
@@ -35,7 +37,7 @@
 
     - name: "[Prepare] Get Patroni Cluster Leader Node"
       ansible.builtin.uri:
-        url: http://{{ inventory_hostname }}:{{ patroni_restapi_port | default('8008') }}/leader
+        url: http://{{ patroni_connect_address }}:{{ patroni_restapi_port | default('8008') }}/leader
         status_code: 200
       register: patroni_leader_result
       changed_when: false
@@ -105,8 +107,8 @@
   any_errors_fatal: true
   environment: "{{ proxy_env | default({}) }}"
   handlers:
-    - ansible.builtin.import_tasks: roles/patroni/handlers/main.yml
-    - ansible.builtin.import_tasks: roles/pgbouncer/handlers/main.yml
+    - ansible.builtin.import_tasks: ../roles/patroni/handlers/main.yml
+    - ansible.builtin.import_tasks: ../roles/pgbouncer/handlers/main.yml
   pre_tasks:
     - name: Build a firewall_ports_dynamic_var
       ansible.builtin.set_fact:

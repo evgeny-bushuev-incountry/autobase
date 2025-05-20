@@ -6,7 +6,7 @@
   any_errors_fatal: true
   gather_facts: true
   handlers:
-    - ansible.builtin.import_tasks: roles/patroni/handlers/main.yml
+    - ansible.builtin.import_tasks: ../roles/patroni/handlers/main.yml
 
   pre_tasks:
     - name: Set maintenance variable

@@ -2,6 +2,10 @@
 - name: Make sure handlers are flushed immediately
   ansible.builtin.meta: flush_handlers
 
+- name: Set patroni_connect_address variable to hostvars
+  set_fact:
+    patroni_connect_address: "{{ patroni_connect_address }}"
+
 # pip install
 - ansible.builtin.import_tasks: pip.yml
   when:

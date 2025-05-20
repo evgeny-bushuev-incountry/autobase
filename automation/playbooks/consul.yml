@@ -24,6 +24,7 @@
       changed_when: false
       failed_when: false
       register: ansible_utils_result
+      become: false
       delegate_to: localhost
       run_once: true # noqa run-once
 
@@ -133,7 +134,9 @@
         consul_node_role: "{{ 'server' if not dcs_exists | default(false) else 'client' }}"
         consul_bootstrap_expect: "{{ not dcs_exists | default(false) }}"
         consul_datacenter: "{{ server_location | default('dc1') }}"
-      when: cloud_provider | default('') | length > 0
+      when: 
+      - cloud_provider | default('') | length > 0
+      - cloud_init | bool
 
   roles:
     - role: firewall

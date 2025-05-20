@@ -18,7 +18,9 @@
       tags: always
   roles:
     - role: cloud_resources
-      when: cloud_provider | default('') | length > 0
+      when: 
+      - cloud_provider | default('') | length > 0
+      - cloud_init | bool
       tags: always
 
 - name: deploy_pgcluster.yml | Perform pre-checks
@@ -35,7 +37,7 @@
         msg:
           server_name: "{{ hostname | default(ansible_hostname) }}"
           server_location: "{{ server_location | default(omit) }}"
-          ip_address: "{{ inventory_hostname | default('N/A') }}"
+          ip_address: "{{ ansible_host | default('N/A') }}"
           os: "{{ ansible_distribution | default('N/A') }} {{ ansible_distribution_version | default('N/A') }}"
           kernel: "{{ ansible_kernel | default('N/A') }}"
           cpu:
@@ -191,6 +193,7 @@
       vars:
         tls_group_name: "postgres_cluster"
         tls_cert_regenerate: "{{ patroni_tls_cert_regenerate | default(false) }}" # Do not generate new certificates if they already exist.
+        generate_tls_address: patroni_connect_address
       when: tls_cert_generate | default(true) | bool
 
 - name: deploy_pgcluster.yml | Deploy etcd cluster
@@ -200,7 +203,7 @@
 
 - name: deploy_pgcluster.yml | Deploy Consul
   ansible.builtin.import_playbook: consul.yml
-  when: dcs_type | default('etcd') == "consul"
+  when: not dcs_exists and dcs_type == "consul"
   tags: consul
 
 - name: deploy_pgcluster.yml | Postgres Cluster Configuration
@@ -291,7 +294,7 @@
   gather_facts: true
   any_errors_fatal: true
   handlers:
-    - ansible.builtin.import_tasks: roles/pgbouncer/handlers/main.yml
+    - ansible.builtin.import_tasks: ../roles/pgbouncer/handlers/main.yml
 
   pre_tasks:
     # if 'cloud_provider' is 'aws', 'gcp', or 'azure'
