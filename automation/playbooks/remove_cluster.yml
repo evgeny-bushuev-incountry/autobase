@@ -17,6 +17,10 @@
           ansible.builtin.file:
             path: "{{ postgresql_data_dir | default('/var/lib/postgresql') }}"
             state: absent
+        - name: Delete PostgreSQL data directory (perform pg_dropcluster)
+          ansible.builtin.command: >
+            /usr/bin/pg_dropcluster {{ pg_old_version }} {{ postgresql_cluster_name }}
+          when: ansible_os_family == "Debian"
       when: remove_postgres | default(false) | bool
       ignore_errors: true
     - block:
@@ -46,10 +50,10 @@
           ansible.builtin.file:
             path: "{{ consul_data_path | default('/var/lib/consul') }}"
             state: absent
-        - name: Delete Consul serivce
+        - name: Delete Consul bootstrap file
           ansible.builtin.file:
-            path: /lib/systemd/system/consul.service
             state: absent
+            path: "{{ consul_bootstrap_state | default('/etc/consul/.consul_bootstrapped') }}"
       when: remove_consul | default(false) | bool
       ignore_errors: true
 
