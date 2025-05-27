@@ -49,7 +49,9 @@
       retries: 3
       delegate_to: localhost
       run_once: true # noqa run-once
-      when: hostvars['localhost']['ansible_distribution'] != "MacOSX"
+      when: 
+        - hostvars['localhost']['ansible_distribution'] != "MacOSX"
+        - hostvars['localhost']['ansible_distribution'] != "Ubuntu"
 
     - name: Make sure the python3-pip package are present on the control host
       ansible.builtin.package:
@@ -61,7 +63,9 @@
       retries: 3
       delegate_to: localhost
       run_once: true # noqa run-once
-      when: hostvars['localhost']['ansible_distribution'] != "MacOSX"
+      when:
+        - hostvars['localhost']['ansible_distribution'] != "MacOSX"
+        - hostvars['localhost']['ansible_distribution'] != "Ubuntu"
 
     - name: Install netaddr dependency on the control host
       ansible.builtin.pip:

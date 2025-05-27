@@ -389,7 +389,7 @@ postgresql_parameters:
 #  - { option: "lock_timeout", value: "10s" } # reduce this timeout if possible
 #  - { option: "deadlock_timeout", value: "2s" }
 #  - { option: "", value: "" }
-
+postgresql_parameters_extra: []
 # Set this variable to 'true' if you want the cluster to be automatically restarted
 # after changing the 'postgresql_parameters' variable that requires a restart in the 'config_pgcluster.yml' playbook.
 # By default, the cluster will not be automatically restarted.
