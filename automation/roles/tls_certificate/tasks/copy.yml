@@ -1,5 +1,5 @@
 ---
-- name: "Fetch TLS certificate, key and CA from {{ selected_group[0] }}"
+- name: "Fetch TLS certificate, key and CA from {{ inventory_hostname }}"
   run_once: true
   ansible.builtin.slurp:
     src: "{{ fetch_tls_dir | default(tls_dir | default('/etc/tls')) }}/{{ item }}"
