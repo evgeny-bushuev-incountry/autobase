@@ -342,3 +342,9 @@
 
 - ansible.builtin.include_tasks: ../tasks/dnsmasq.yml
   when: consul_dnsmasq_enable | bool
+
+- ansible.builtin.include_tasks: ../tasks/systemd_resolved.yml
+  when:
+    - not consul_dnsmasq_enable | bool
+    - ansible_service_mgr == "systemd"
+    - consul_recursors | length > 0

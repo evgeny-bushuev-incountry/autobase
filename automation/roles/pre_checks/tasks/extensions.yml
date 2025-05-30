@@ -69,13 +69,6 @@
         + (['pg_analytics'] if ((enable_paradedb | default(false) | bool) or (enable_pg_analytics | default(false) | bool)) else [])
       }}
 
-- name: Merge extra postgresql_parameters
-  ansible.builtin.set_fact:
-    postgresql_parameters: "{{ _postgresql_parameters }}"
-  vars: 
-    _postgresql_parameters: "{{ postgresql_parameters | community.general.lists_mergeby(postgresql_parameters_extra, 'option') }}"
-
-
 - name: Add required extensions to 'shared_preload_libraries' (if missing)
   ansible.builtin.set_fact:
     # This complex line does several things:

@@ -54,3 +54,9 @@
 - name: Perform pre-checks for extensions
   ansible.builtin.import_tasks: extensions.yml
   when: inventory_hostname == groups['master'][0]
+
+- name: Merge extra postgresql_parameters
+  ansible.builtin.set_fact:
+    postgresql_parameters: "{{ _postgresql_parameters }}"
+  vars:
+    _postgresql_parameters: "{{ postgresql_parameters | community.general.lists_mergeby(postgresql_parameters_extra, 'option') }}"
