@@ -19,6 +19,17 @@
       delegate_to: localhost
       delegate_facts: true
 
+    - name: Gather network facts
+      ansible.builtin.setup:
+        gather_subset:
+          - network
+      when: ansible_all_ipv4_addresses is not defined
+
+    - name: Expose bind_address as facts
+      ansible.builtin.set_fact:
+        bind_address: "{{ ansible_all_ipv4_addresses | ansible.utils.ipaddr('private') | first }}"
+      when: bind_address is not defined
+
     - name: Check if the consul role requirements (ansible.utils) are installed
       ansible.builtin.command: ansible-galaxy collection list ansible.utils
       changed_when: false
@@ -49,7 +60,7 @@
       retries: 3
       delegate_to: localhost
       run_once: true # noqa run-once
-      when: 
+      when:
         - hostvars['localhost']['ansible_distribution'] != "MacOSX"
         - hostvars['localhost']['ansible_distribution'] != "Ubuntu"
 
