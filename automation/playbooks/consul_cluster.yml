@@ -10,7 +10,7 @@
   pre_tasks:
 
     - name: Gather ansible_distribution from localhost
-      setup:
+      ansible.builtin.setup:
         gather_subset:
         - '!all'
         - '!min'
@@ -59,10 +59,10 @@
       delay: 5
       retries: 3
       delegate_to: localhost
+      become: false
       run_once: true # noqa run-once
-      when:
-        - hostvars['localhost']['ansible_distribution'] != "MacOSX"
-        - hostvars['localhost']['ansible_distribution'] != "Ubuntu"
+      ignore_errors: true
+      when: hostvars['localhost']['ansible_distribution'] != "MacOSX"
 
     - name: Make sure the python3-pip package are present on the control host
       ansible.builtin.package:
@@ -73,10 +73,10 @@
       delay: 5
       retries: 3
       delegate_to: localhost
+      become: false
       run_once: true # noqa run-once
-      when:
-        - hostvars['localhost']['ansible_distribution'] != "MacOSX"
-        - hostvars['localhost']['ansible_distribution'] != "Ubuntu"
+      ignore_errors: true
+      when: hostvars['localhost']['ansible_distribution'] != "MacOSX"
 
     - name: Install netaddr dependency on the control host
       ansible.builtin.pip:
