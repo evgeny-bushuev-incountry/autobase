@@ -2,6 +2,12 @@
 - name: Make sure handlers are flushed immediately
   ansible.builtin.meta: flush_handlers
 
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+  when: ansible_facts.packages is not defined
+  check_mode: false
+
 - name: Make sure the unzip/tar packages are present
   ansible.builtin.package:
     name:
@@ -13,6 +19,7 @@
   delay: 5
   retries: 3
   environment: "{{ proxy_env | default({}) }}"
+  when: "'unzip' not in ansible_facts.packages or 'tar' not in ansible_facts.packages"
   tags: etcd, etcd_install
 
 - name: Expose etcd_bind_address as facts
@@ -88,7 +95,6 @@
         generate_tls_owner: "etcd"
         generate_tls_common_name: "etcd"
         generate_tls_dir: "{{ etcd_tls_dir | default('/etc/etcd/tls') }}"
-        generate_tls_address: etcd_bind_address
         tls_cert_regenerate: "{{ etcd_tls_cert_regenerate | default(false) }}" # Do not generate new certificates if they already exist.
       when: etcd_on_dedicated_nodes | default(false) | bool
 
