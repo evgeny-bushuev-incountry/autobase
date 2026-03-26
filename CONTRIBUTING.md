@@ -11,11 +11,11 @@ Your contributions are appreciated and will be taken seriously.
 
 ### 1. Create an issue
 
-Report problems or suggest improvements by [creating an issue](https://github.com/vitabaks/autobase/issues).
+Report problems or suggest improvements by [creating an issue](https://github.com/autobase-tech/autobase/issues).
 
 ### 2. Fork the project
 
-[Fork the repository](https://github.com/vitabaks/autobase) to your GitHub account.
+[Fork the repository](https://github.com/autobase-tech/autobase) to your GitHub account.
 
 ### 3. Make changes
 
